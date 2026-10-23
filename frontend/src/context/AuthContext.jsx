@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // Configure axios defaults
-  axios.defaults.baseURL = 'http://localhost:5000/api';
+  axios.defaults.baseURL = import.meta.env.VITE_API_URL || '/api';
 
   useEffect(() => {
     if (token) {
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/auth/me');
+      const res = await axios.get('/auth/me');
       setUser(res.data);
     } catch (err) {
       console.error(err);
@@ -37,13 +37,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
-    const res = await axios.post('http://localhost:5000/auth/login', { email, password });
+    const res = await axios.post('/auth/login', { email, password });
     setToken(res.data.token);
     setUser(res.data.user);
   };
 
   const signup = async (name, email, password) => {
-    const res = await axios.post('http://localhost:5000/auth/signup', { name, email, password });
+    const res = await axios.post('/auth/signup', { name, email, password });
     setToken(res.data.token);
     setUser(res.data.user);
   };
