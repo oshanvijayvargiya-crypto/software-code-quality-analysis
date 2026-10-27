@@ -29,7 +29,16 @@ const healthHandler = (req, res) => res.json({
 app.get('/', healthHandler);
 app.get('/api', healthHandler);
 app.get('/health', healthHandler);
-app.get('/api/health', healthHandler);
+app.get('/api/db-test', async (req, res) => {
+  const uri = process.env.MONGO_URI || '';
+  const maskedUri = uri.replace(/:([^@]+)@/, ':****@');
+  try {
+    const conn = await mongoose.connect(uri, { serverSelectionTimeoutMS: 7000 });
+    res.json({ success: true, host: conn.connection.host, uri: maskedUri });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message, uri: maskedUri, code: err.code });
+  }
+});
 
 // Define Routes - Support both /api prefix and root level
 app.use('/api/auth', require('./routes/authRoutes'));
