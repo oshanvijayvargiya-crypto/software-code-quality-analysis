@@ -19,8 +19,17 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 
 // Health checks
-app.get('/', (req, res) => res.json({ status: 'ok', message: 'Backend is running' }));
-app.get('/api', (req, res) => res.json({ status: 'ok', message: 'API is running' }));
+const mongoose = require('mongoose');
+const healthHandler = (req, res) => res.json({
+  status: 'ok',
+  message: 'Backend is running',
+  mongo: mongoose.connection.readyState === 1 ? 'connected' : `status_${mongoose.connection.readyState}`,
+  hasMongoUri: !!process.env.MONGO_URI
+});
+app.get('/', healthHandler);
+app.get('/api', healthHandler);
+app.get('/health', healthHandler);
+app.get('/api/health', healthHandler);
 
 // Define Routes - Support both /api prefix and root level
 app.use('/api/auth', require('./routes/authRoutes'));
