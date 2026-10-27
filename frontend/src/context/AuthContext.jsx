@@ -9,7 +9,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // Configure axios defaults
-  axios.defaults.baseURL = import.meta.env.VITE_API_URL || '/api';
+  const rawApiUrl = import.meta.env.VITE_API_URL || '/api';
+  axios.defaults.baseURL = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
 
   useEffect(() => {
     if (token) {
