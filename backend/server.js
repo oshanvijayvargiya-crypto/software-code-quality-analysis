@@ -18,6 +18,14 @@ app.use(cors({
 // Body parser
 app.use(express.json({ limit: '10mb' }));
 
+// Reconnect to DB on request if disconnected
+app.use((req, res, next) => {
+  if (mongoose.connection.readyState === 0) {
+    connectDB().catch(() => {});
+  }
+  next();
+});
+
 // Health checks
 const mongoose = require('mongoose');
 const healthHandler = (req, res) => res.json({
@@ -29,16 +37,23 @@ const healthHandler = (req, res) => res.json({
 app.get('/', healthHandler);
 app.get('/api', healthHandler);
 app.get('/health', healthHandler);
-app.get('/api/db-test', async (req, res) => {
-  const uri = process.env.MONGO_URI || '';
-  const maskedUri = uri.replace(/:([^@]+)@/, ':****@');
-  try {
-    const conn = await mongoose.connect(uri, { serverSelectionTimeoutMS: 7000 });
-    res.json({ success: true, host: conn.connection.host, uri: maskedUri });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message, uri: maskedUri, code: err.code });
+app.get('/api/health', healthHandler);
+
+const dbTestHandler = async (req, res) => {
+  let uri = (process.env.MONGO_URI || '').trim();
+  if ((uri.startsWith('"') && uri.endsWith('"')) || (uri.startsWith("'") && uri.endsWith("'"))) {
+    uri = uri.slice(1, -1).trim();
   }
-});
+  const maskedUri = uri ? uri.replace(/:([^@]+)@/, ':****@') : 'NONE';
+  try {
+    const conn = await mongoose.connect(uri, { serverSelectionTimeoutMS: 6000 });
+    res.json({ success: true, mongo: 'connected', host: conn.connection.host, uri: maskedUri });
+  } catch (err) {
+    res.status(500).json({ success: false, mongo: 'failed', error: err.message, uri: maskedUri, code: err.code });
+  }
+};
+app.get('/db-test', dbTestHandler);
+app.get('/api/db-test', dbTestHandler);
 
 // Define Routes - Support both /api prefix and root level
 app.use('/api/auth', require('./routes/authRoutes'));
