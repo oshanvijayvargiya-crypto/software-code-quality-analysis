@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-deep-void text-gray-200 font-sans m-0 p-0 antialiased;
+  html, body {
+    @apply bg-deep-void text-gray-200 font-sans m-0 p-0 antialiased overflow-x-hidden;
+    -webkit-tap-highlight-color: transparent;
   }
   
   h1, h2, h3, h4, h5, h6 {

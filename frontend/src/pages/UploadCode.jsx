@@ -78,28 +78,30 @@ export default function UploadCode() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-5xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-3xl font-mono text-white mb-2">New Scan</h1>
-          <p className="text-muted-steel font-sans">Input source code or upload a file for diagnostic analysis.</p>
+      <div className="p-4 sm:p-6 md:p-8 max-w-5xl mx-auto">
+        <header className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-mono text-white mb-1 sm:mb-2">New Scan</h1>
+          <p className="text-muted-steel font-sans text-sm sm:text-base">Input source code or upload a file for diagnostic analysis.</p>
         </header>
 
         {error && (
-          <div className="mb-6 p-4 border border-critical-red/50 bg-critical-red/10 text-critical-red font-mono text-sm">
+          <div className="mb-6 p-3 sm:p-4 border border-critical-red/50 bg-critical-red/10 text-critical-red font-mono text-xs sm:text-sm rounded-sm">
             &gt; ERROR: {error}
           </div>
         )}
 
-        <div className="bg-surface-subdued/20 border border-surface-subdued/50 p-1 mb-6 flex gap-1 rounded-sm w-fit">
+        <div className="bg-surface-subdued/20 border border-surface-subdued/50 p-1 mb-6 grid grid-cols-2 sm:flex gap-1 rounded-sm w-full sm:w-fit">
           <button 
+            type="button"
             onClick={() => setActiveTab('paste')}
-            className={`px-4 py-2 font-mono text-sm transition-colors flex items-center gap-2 ${activeTab === 'paste' ? 'bg-surface-subdued text-white' : 'text-muted-steel hover:text-white'}`}
+            className={`px-3 sm:px-4 py-2 font-mono text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 rounded-sm ${activeTab === 'paste' ? 'bg-surface-subdued text-white font-semibold' : 'text-muted-steel hover:text-white'}`}
           >
             <Code className="w-4 h-4" /> Raw Code
           </button>
           <button 
+            type="button"
             onClick={() => setActiveTab('upload')}
-            className={`px-4 py-2 font-mono text-sm transition-colors flex items-center gap-2 ${activeTab === 'upload' ? 'bg-surface-subdued text-white' : 'text-muted-steel hover:text-white'}`}
+            className={`px-3 sm:px-4 py-2 font-mono text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 rounded-sm ${activeTab === 'upload' ? 'bg-surface-subdued text-white font-semibold' : 'text-muted-steel hover:text-white'}`}
           >
             <UploadCloud className="w-4 h-4" /> File Upload
           </button>
@@ -108,21 +110,21 @@ export default function UploadCode() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className={`relative ${isAnalyzing ? 'opacity-80' : ''}`}>
             {isAnalyzing && (
-              <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-center items-center bg-deep-void/40 backdrop-blur-sm">
+              <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-center items-center bg-deep-void/60 backdrop-blur-sm p-4 text-center">
                 <div className="scanner-line"></div>
-                <Activity className="w-12 h-12 text-scanner-green animate-pulse mb-4" />
-                <span className="text-scanner-green font-mono font-bold tracking-widest uppercase">Executing Scan...</span>
+                <Activity className="w-10 h-10 sm:w-12 sm:h-12 text-scanner-green animate-pulse mb-3" />
+                <span className="text-scanner-green font-mono font-bold tracking-widest uppercase text-xs sm:text-sm">Executing Scan...</span>
               </div>
             )}
 
             {activeTab === 'paste' ? (
-              <div className="border border-surface-subdued/50">
+              <div className="border border-surface-subdued/50 rounded-sm overflow-hidden">
                 <div className="bg-surface-subdued p-3 border-b border-surface-subdued/50 flex justify-between items-center">
                   <span className="font-mono text-xs text-muted-steel">EDITOR</span>
                   <select 
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className="bg-deep-void border border-muted-steel/30 text-white font-mono text-xs px-2 py-1 outline-none"
+                    className="bg-deep-void border border-muted-steel/30 text-white font-mono text-xs px-2.5 py-1 outline-none rounded-sm"
                     disabled={isAnalyzing}
                   >
                     <option value="JavaScript">JavaScript</option>
@@ -130,23 +132,29 @@ export default function UploadCode() {
                     <option value="Java">Java</option>
                   </select>
                 </div>
-                <Editor
-                  height="500px"
-                  language={language.toLowerCase()}
-                  theme="vs-dark"
-                  value={code}
-                  onChange={handleEditorChange}
-                  options={{
-                    minimap: { enabled: false },
-                    fontSize: 14,
-                    fontFamily: '"JetBrains Mono", monospace',
-                    readOnly: isAnalyzing
-                  }}
-                  onMount={(editor) => { editorRef.current = editor; }}
-                />
+                <div className="w-full">
+                  <Editor
+                    height="380px"
+                    className="sm:h-[480px]"
+                    language={language.toLowerCase()}
+                    theme="vs-dark"
+                    value={code}
+                    onChange={handleEditorChange}
+                    options={{
+                      minimap: { enabled: false },
+                      fontSize: 13,
+                      fontFamily: '"JetBrains Mono", monospace',
+                      wordWrap: 'on',
+                      lineNumbersMinChars: 3,
+                      automaticLayout: true,
+                      readOnly: isAnalyzing
+                    }}
+                    onMount={(editor) => { editorRef.current = editor; }}
+                  />
+                </div>
               </div>
             ) : (
-              <div className="border-2 border-dashed border-surface-subdued/50 p-12 text-center hover:bg-surface-subdued/10 transition-colors">
+              <div className="border-2 border-dashed border-surface-subdued/50 p-6 sm:p-12 text-center hover:bg-surface-subdued/10 transition-colors rounded-sm">
                 <input 
                   type="file" 
                   id="file-upload" 
@@ -156,23 +164,23 @@ export default function UploadCode() {
                   disabled={isAnalyzing}
                 />
                 <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center">
-                  <FileCode2 className={`w-12 h-12 mb-4 ${file ? 'text-scanner-green' : 'text-muted-steel'}`} />
-                  <span className="font-mono text-lg text-white mb-2">
+                  <FileCode2 className={`w-10 h-10 sm:w-12 sm:h-12 mb-3 sm:mb-4 ${file ? 'text-scanner-green' : 'text-muted-steel'}`} />
+                  <span className="font-mono text-base sm:text-lg text-white mb-1 sm:mb-2 break-all px-2">
                     {file ? file.name : 'Select a file to scan'}
                   </span>
-                  <span className="text-muted-steel text-sm">Supported: .js, .py, .java (Max 2MB)</span>
+                  <span className="text-muted-steel text-xs sm:text-sm">Supported: .js, .py, .java (Max 2MB)</span>
                 </label>
               </div>
             )}
           </div>
 
-          <div className="flex justify-end">
-             <button
+          <div className="flex justify-stretch sm:justify-end">
+            <button
               type="submit"
               disabled={isAnalyzing}
-              className="px-8 py-3 bg-scanner-green text-deep-void font-mono font-bold uppercase hover:bg-emerald-400 transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="w-full sm:w-auto px-8 py-3.5 bg-scanner-green text-deep-void font-mono font-bold uppercase hover:bg-emerald-400 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 rounded-sm text-sm"
             >
-              <Activity className="w-5 h-5" />
+              <Activity className="w-4 h-4 sm:w-5 sm:h-5" />
               {isAnalyzing ? 'Scanning...' : 'Analyze Code'}
             </button>
           </div>
